@@ -1,0 +1,39 @@
+Project Name: Dr Drago's Madcap Chase (fan remake)
+
+Concept: A digital board game inspired by the classic Amiga game, Dr. Drago's Madcap Chase. The goal is for players to race across a stylized map to reach a final destination first.
+
+Core Game Mechanics:
+- Game Board: A network of interconnected "nodes" on a map. Nodes can be cities, event locations, car dealers, or plain travel spaces.
+- Player Movement: Movement is determined by a random roll (dice) to move a set number of nodes per turn.
+- Economic System: Players manage money to buy new cars or repair damage. They can also buy "shares" in cities for passive income.
+- Dr. Drago NPC: A non-player character who moves randomly and penalizes players on the same node.
+- Character Traits: Each playable character has a unique passive ability.
+
+Required instruction:
+- every time files are created or updated, the AI assistant will need to update both the Current Status in this file and the next steps, where relevant
+
+Current Status:
+- Overhauled the character selection screen (`PlayerSelectScene.js`) with a two-column layout, character portraits, and improved UI.
+- Updated character names in `Characters.js` to avoid potential copyright issues.
+- Generated placeholder SVG portraits for each character.
+- Implemented a visual checkmark for character selection.
+- The "Start Game" button is now styled and is only enabled after a character is selected.
+- A basic game loop is in place with dice rolling and player movement on the board.
+- Fixed a syntax error in `Characters.js` related to an unescaped character.
+- Fixed a bug in `GameScene.js` caused by corrupted file content.
+- Created a placeholder `favicon.svg` and updated `index.html` to use it.
+- Fixed layout issues in the character selection screen (`PlayerSelectScene.js`).
+- Improved the visual styling of the character selection screen with a new background, fonts, and button styles.
+- Applied a consistent gradient background to all scenes for a modern look.
+- Further refined the layout of the character selection screen to prevent text overflow and improve spacing.
+- Critical Fix: Overwrote `PlayerSelectScene.js` with a clean version to resolve persistent SyntaxError caused by file corruption.
+- Fixed a SyntaxError: Unexpected identifier 'Characters' in `PlayerSelectScene.js` caused by corrupted file content.
+- Fixed the crash when starting the game by dynamically selecting a valid non-duplicate opponent from the roster.
+- Rewrote the BFS pathfinding in `Board.js` to allow loops and parallel paths while preventing immediate backtracking on a single edge.
+- Expanded the Lowlands game map to 20 nodes with coordinates that align with the screen space mapping.
+
+Next Steps (Proposed Plan):
+1. Add a UI for the player to choose their destination after rolling the dice.
+2. Flesh out the Economic System (buying/selling shares, city income).
+3. Implement Dr. Drago's negative events and movement.
+4. Add visual feedback for character selection in `PlayerSelectScene.js`.
