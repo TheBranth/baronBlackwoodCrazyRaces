@@ -10,6 +10,7 @@ export default class Player {
         
         // Hand of Feature Cards (limit 8)
         this.cards = [];
+        this.properties = []; // Array of owned property references: { nodeId, propertyIndex }
         
         // Movement tracking
         this.movesRemaining = 0;
@@ -116,6 +117,7 @@ export default class Player {
 
         this.money -= prop.cost;
         prop.owner = this.name;
+        this.properties.push({ nodeId: nodeIndex, propertyIndex: propertyIndex });
         console.log(`${this.name} bought ${prop.name} in ${node.name} for $${prop.cost}.`);
         return true;
     }
@@ -141,6 +143,7 @@ export default class Player {
         const payout = Math.floor(prop.cost * multiplier);
         this.money += payout;
         prop.owner = null;
+        this.properties = this.properties.filter(p => !(p.nodeId === nodeIndex && p.propertyIndex === propertyIndex));
         console.log(`${this.name} sold ${prop.name} in ${node.name} for $${payout} (fire-sale).`);
         return true;
     }
@@ -200,5 +203,52 @@ export default class Player {
         });
 
         return this.money + propertyValue;
+    }
+
+    /**
+     * Serializes player data into a plain JSON-compatible object.
+     * @returns {object} plain serialized player data
+     */
+    serialize() {
+        return {
+            name: this.name,
+            characterName: this.character.name,
+            money: this.money,
+            car: { ...this.car },
+            currentNodeIndex: this.currentNodeIndex,
+            cards: this.cards.map(c => ({ ...c })),
+            skipNextTurn: this.skipNextTurn,
+            blackwoodHaunted: this.blackwoodHaunted,
+            activeCardModifier: this.activeCardModifier,
+            visitedCities: [...this.visitedCities],
+            properties: this.properties.map(p => ({ ...p }))
+        };
+    }
+
+    /**
+     * Deserializes player data from a plain object.
+     * @param {object} data plain serialized player data
+     * @param {array} allCharacters array of all character objects to resolve reference
+     */
+    deserialize(data, allCharacters) {
+        this.name = data.name;
+        this.money = data.money;
+        this.car = { ...data.car };
+        this.currentNodeIndex = data.currentNodeIndex;
+        this.cards = data.cards ? data.cards.map(c => ({ ...c })) : [];
+        this.skipNextTurn = data.skipNextTurn || false;
+        this.blackwoodHaunted = data.blackwoodHaunted || false;
+        this.activeCardModifier = data.activeCardModifier || null;
+        this.visitedCities = data.visitedCities ? [...data.visitedCities] : [];
+        this.properties = data.properties ? data.properties.map(p => ({ ...p })) : [];
+
+        // Resolve character reference by matching name
+        if (allCharacters) {
+            const charList = Array.isArray(allCharacters) ? allCharacters : Object.values(allCharacters);
+            const matchedChar = charList.find(c => c.name === data.characterName);
+            if (matchedChar) {
+                this.character = matchedChar;
+            }
+        }
     }
 }

@@ -126,6 +126,9 @@ export default class Game {
         // Advance turn
         this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.players.length;
 
+        // Autosave the state
+        this.saveToLocalStorage();
+
         return winDetails;
     }
 
@@ -394,5 +397,102 @@ export default class Game {
             return { type: 'red', amount: actualLoss, visitedCount: player.visitedCities.length };
         }
         return null;
+    }
+
+    /**
+     * Serializes the game state to a plain JSON-compatible object.
+     * @returns {object} plain serialized game data
+     */
+    serialize() {
+        return {
+            currentPlayerIndex: this.currentPlayerIndex,
+            blackwoodPosition: this.blackwoodPosition,
+            currentTargetIndex: this.targetCapitalIndex,
+            stagesCount: this.stagesCount,
+            players: this.players.map(p => p.serialize())
+        };
+    }
+
+    /**
+     * Deserializes the game state and restores board property ownership.
+     * @param {object} data plain serialized game data
+     */
+    deserialize(data) {
+        this.currentPlayerIndex = data.currentPlayerIndex;
+        this.blackwoodPosition = data.blackwoodPosition;
+        this.targetCapitalIndex = data.currentTargetIndex;
+        this.stagesCount = data.stagesCount;
+
+        // Restore player states
+        this.players.forEach((player, idx) => {
+            if (data.players[idx]) {
+                player.deserialize(data.players[idx], Characters);
+            }
+        });
+
+        // Reset all board properties ownership
+        this.board.getNodes().forEach(node => {
+            if (node.properties) {
+                node.properties.forEach(p => {
+                    p.owner = null;
+                });
+            }
+        });
+
+        // Restore ownership based on each player's deserialized properties list
+        this.players.forEach(player => {
+            player.properties.forEach(propRef => {
+                const node = this.board.findNodeById(propRef.nodeId);
+                if (node && node.properties && node.properties[propRef.propertyIndex]) {
+                    node.properties[propRef.propertyIndex].owner = player.name;
+                }
+            });
+        });
+    }
+
+    /**
+     * Saves the current game state to localStorage.
+     */
+    saveToLocalStorage() {
+        if (typeof localStorage === 'undefined') return;
+        try {
+            const data = this.serialize();
+            localStorage.setItem('baron_blackwood_savegame', JSON.stringify(data));
+            console.log('Game autosaved successfully.');
+        } catch (e) {
+            console.error('Error autosaving game state:', e);
+        }
+    }
+
+    /**
+     * Loads the game state from localStorage.
+     * @returns {boolean} true if loaded successfully, else false
+     */
+    loadFromLocalStorage() {
+        if (typeof localStorage === 'undefined') return false;
+        try {
+            const saved = localStorage.getItem('baron_blackwood_savegame');
+            if (saved) {
+                const data = JSON.parse(saved);
+                this.deserialize(data);
+                return true;
+            }
+        } catch (e) {
+            console.error('Error loading game state:', e);
+        }
+        return false;
+    }
+
+    /**
+     * Clears any saved game state from localStorage.
+     */
+    clearLocalStorageSave() {
+        if (typeof localStorage === 'undefined') return;
+        try {
+            localStorage.removeItem('baron_blackwood_savegame');
+            console.log('Cleared savegame from localStorage.');
+        } catch (e) {
+            console.error('Error clearing savegame:', e);
+        }
     }
 }

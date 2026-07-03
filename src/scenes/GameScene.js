@@ -8,7 +8,8 @@ export default class GameScene extends Phaser.Scene {
     }
 
     init(data) {
-        this.selectedCharacter = data.selectedCharacter;
+        this.selectedCharacter = data ? data.selectedCharacter : null;
+        this.resume = data && data.resume;
     }
 
     preload() {
@@ -24,6 +25,12 @@ export default class GameScene extends Phaser.Scene {
             { name: 'Player 2', character: opponentCharacter }
         ];
         this.game = new Game(playerConfigs);
+        if (this.resume) {
+            const loadSuccess = this.game.loadFromLocalStorage();
+            if (!loadSuccess) {
+                console.warn('Failed to load savegame from localStorage. Starting a new game.');
+            }
+        }
         const board = this.game.board;
         const nodes = board.getNodes();
 
