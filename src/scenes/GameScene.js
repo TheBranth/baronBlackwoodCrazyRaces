@@ -12,7 +12,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image('europe_map', 'assets/images/europe_map.png');
+        this.load.image('europe_map', 'assets/images/modern_europe.png');
     }
 
     create() {
@@ -29,6 +29,7 @@ export default class GameScene extends Phaser.Scene {
 
         // --- MAP AND CAMERA ---
         const mapImage = this.add.image(0, 0, 'europe_map').setOrigin(0, 0);
+        mapImage.setDisplaySize(4096, 4096);
         this.cameras.main.setBounds(0, 0, 4096, 4096);
         
         // Start camera centered on Prague (Index 399: x=156, y=121)
