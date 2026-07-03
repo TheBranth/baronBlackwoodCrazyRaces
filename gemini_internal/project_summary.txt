@@ -39,6 +39,7 @@ Current Status:
 - Re-engineered `GameScene.js` to draw the 700 nodes, render an interactive map overlay, and support panning, mouse-wheel zooming, and keyboard arrow key movement.
 - Added a modern glassmorphic facts popup window when players land on sightseeing nodes.
 - Generated and integrated a new modern, high-fidelity vintage parchment Europe map scaled to the 740-node grid coordinates.
+- Programmatically rendered all node connections in `GameScene.js`, separating land roads (solid brown lines) from water routes (dashed light-blue lines) by reading connection `flight` values in the JSON database.
 
 Next Steps (Proposed Plan):
 1. Flesh out the Economic System (buying/selling properties and shares, passive income, and monopoly bonuses).

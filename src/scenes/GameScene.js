@@ -40,21 +40,27 @@ export default class GameScene extends Phaser.Scene {
 
         // --- DRAW NODE GLOW & CONNECTIONS ---
         const connectionGraphics = this.add.graphics();
-        connectionGraphics.lineStyle(2, 0xffffff, 0.2);
 
         nodes.forEach((node, index) => {
             const px = node.x * 16 + 8;
             const py = node.y * 16 + 8;
 
             // Draw connections to neighbors (only draw forward links to avoid duplicates)
-            node.neighbors.forEach(neighborIndex => {
+            node.neighbors.forEach((neighborIndex, dir) => {
                 if (neighborIndex !== null && neighborIndex > index) {
                     const neighbor = board.findNodeById(neighborIndex);
                     if (neighbor) {
-                        connectionGraphics.beginPath();
-                        connectionGraphics.moveTo(px, py);
-                        connectionGraphics.lineTo(neighbor.x * 16 + 8, neighbor.y * 16 + 8);
-                        connectionGraphics.strokePath();
+                        const isWater = node.flight[dir] === 1;
+                        if (isWater) {
+                            connectionGraphics.lineStyle(2.5, 0x3498db, 0.75); // Dashed light blue line
+                            this.drawDashedLine(connectionGraphics, px, py, neighbor.x * 16 + 8, neighbor.y * 16 + 8, 8, 6);
+                        } else {
+                            connectionGraphics.lineStyle(3, 0x8c6d58, 0.55); // Solid brown line
+                            connectionGraphics.beginPath();
+                            connectionGraphics.moveTo(px, py);
+                            connectionGraphics.lineTo(neighbor.x * 16 + 8, neighbor.y * 16 + 8);
+                            connectionGraphics.strokePath();
+                        }
                     }
                 }
             });
@@ -403,5 +409,33 @@ export default class GameScene extends Phaser.Scene {
             this.movesText.setText('Roll the dice to start moving.');
             this.endTurnButton.disableInteractive().setAlpha(0.3).setStyle({ color: '#a0aec0', backgroundColor: '#161d2d' });
         }
+    }
+
+    /**
+     * Helper method to draw dashed lines.
+     */
+    drawDashedLine(graphics, x1, y1, x2, y2, dashLength = 8, gapLength = 6) {
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const numDashes = Math.floor(distance / (dashLength + gapLength));
+        const stepX = dx / distance;
+        const stepY = dy / distance;
+
+        graphics.beginPath();
+        for (let i = 0; i < numDashes; i++) {
+            const startDist = i * (dashLength + gapLength);
+            const endDist = startDist + dashLength;
+            graphics.moveTo(x1 + stepX * startDist, y1 + stepY * startDist);
+            graphics.lineTo(x1 + stepX * endDist, y1 + stepY * endDist);
+        }
+        const remaining = distance - numDashes * (dashLength + gapLength);
+        if (remaining > dashLength) {
+            const startDist = numDashes * (dashLength + gapLength);
+            const endDist = startDist + dashLength;
+            graphics.moveTo(x1 + stepX * startDist, y1 + stepY * startDist);
+            graphics.lineTo(x1 + stepX * endDist, y1 + stepY * endDist);
+        }
+        graphics.strokePath();
     }
 }
