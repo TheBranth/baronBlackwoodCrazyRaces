@@ -456,6 +456,10 @@ export default class GameScene extends Phaser.Scene {
                 this.showPurpleModal();
             } else if (landResult.type === 'property') {
                 this.showPropertyModal(landResult.node);
+            } else if (landResult.type === 'blue') {
+                this.showBlueModal(landResult);
+            } else if (landResult.type === 'red') {
+                this.showRedModal(landResult);
             } else {
                 this.completeTurnEnding();
             }
@@ -665,6 +669,52 @@ export default class GameScene extends Phaser.Scene {
             fontSize: '16px',
             color: '#ffffff',
             backgroundColor: '#eccc68',
+            padding: { x: 20, y: 8 },
+            fontFamily: 'Arial',
+            fontStyle: 'bold'
+        }).setOrigin(0.5)
+          .setInteractive({ useHandCursor: true })
+          .on('pointerdown', () => {
+              this.modalOverlay.setVisible(false);
+              this.completeTurnEnding();
+          });
+
+        this.modalButtons.add(btn);
+        this.modalOverlay.setVisible(true);
+    }
+
+    showBlueModal(result) {
+        this.modalTitle.setText('SPONSOR PAYOUT!').setColor('#00ff66');
+        this.modalBody.setText(`You landed on a Blue space!\n\nA local sponsor rewards your racing team with a cash prize of:\n\n+$${result.amount.toLocaleString()}\n\n(Multiplier: ${result.visitedCount} cities visited)`);
+        this.modalButtons.removeAll(true);
+
+        const btn = this.add.text(0, 60, 'OK', {
+            fontSize: '16px',
+            color: '#ffffff',
+            backgroundColor: '#00ff66',
+            padding: { x: 20, y: 8 },
+            fontFamily: 'Arial',
+            fontStyle: 'bold'
+        }).setOrigin(0.5)
+          .setInteractive({ useHandCursor: true })
+          .on('pointerdown', () => {
+              this.modalOverlay.setVisible(false);
+              this.completeTurnEnding();
+          });
+
+        this.modalButtons.add(btn);
+        this.modalOverlay.setVisible(true);
+    }
+
+    showRedModal(result) {
+        this.modalTitle.setText('REPAIR PENALTY!').setColor('#ff4757');
+        this.modalBody.setText(`You landed on a Red space!\n\nYour radiator overheated and required emergency mechanic assistance. You paid:\n\n-$${result.amount.toLocaleString()}\n\n(Multiplier: ${result.visitedCount} cities visited)`);
+        this.modalButtons.removeAll(true);
+
+        const btn = this.add.text(0, 60, 'PAY FEE', {
+            fontSize: '16px',
+            color: '#ffffff',
+            backgroundColor: '#ff4757',
             padding: { x: 20, y: 8 },
             fontFamily: 'Arial',
             fontStyle: 'bold'

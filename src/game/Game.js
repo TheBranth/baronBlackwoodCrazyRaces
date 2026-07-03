@@ -3,15 +3,15 @@ import Player from './Player.js';
 import Characters from './Characters.js';
 
 export const CARD_TEMPLATES = [
-    { id: 'double_dice', name: 'Double Dice', desc: 'Rolls 2 dice on your next turn.', actionType: 'dice_modifier' },
-    { id: 'triple_dice', name: 'Triple Dice', desc: 'Rolls 3 dice on your next turn.', actionType: 'dice_modifier' },
-    { id: 'specific_1', name: 'Direct 1', desc: 'Sets your next roll to exactly 1.', actionType: 'dice_modifier' },
-    { id: 'specific_2', name: 'Direct 2', desc: 'Sets your next roll to exactly 2.', actionType: 'dice_modifier' },
-    { id: 'specific_3', name: 'Direct 3', desc: 'Sets your next roll to exactly 3.', actionType: 'dice_modifier' },
-    { id: 'blackwood_shield', name: 'Blackwood Shield', desc: 'Instantly expels Baron Blackwood if you are haunted.', actionType: 'defensive' },
-    { id: 'teleport', name: 'Teleport Swap', desc: 'Swaps position with your opponent.', actionType: 'movement' },
-    { id: 'steal_cash', name: 'Cash Squeeze', desc: 'Steals $10,000 from your opponent.', actionType: 'sabotage' },
-    { id: 'freeze_opponent', name: 'Freeze Opponent', desc: 'Forces your opponent to skip their next turn.', actionType: 'sabotage' }
+    { id: 'double_dice', name: 'Nitrous Boost', desc: 'Rolls 2 dice on your next turn.', actionType: 'dice_modifier' },
+    { id: 'triple_dice', name: 'Rocket Thruster', desc: 'Rolls 3 dice on your next turn.', actionType: 'dice_modifier' },
+    { id: 'specific_1', name: 'Cruise Control 1', desc: 'Sets your next roll to exactly 1.', actionType: 'dice_modifier' },
+    { id: 'specific_2', name: 'Cruise Control 2', desc: 'Sets your next roll to exactly 2.', actionType: 'dice_modifier' },
+    { id: 'specific_3', name: 'Cruise Control 3', desc: 'Sets your next roll to exactly 3.', actionType: 'dice_modifier' },
+    { id: 'blackwood_shield', name: 'Decoy Hologram', desc: 'Instantly expels Baron Blackwood if you are haunted.', actionType: 'defensive' },
+    { id: 'teleport', name: 'Wormhole Swap', desc: 'Swaps position with your opponent.', actionType: 'movement' },
+    { id: 'steal_cash', name: 'IRS Tax Audit', desc: 'Steals $10,000 from your opponent.', actionType: 'sabotage' },
+    { id: 'freeze_opponent', name: 'Sugar in the Engine', desc: 'Forces your opponent to skip their next turn.', actionType: 'sabotage' }
 ];
 
 export default class Game {
@@ -115,7 +115,7 @@ export default class Game {
      */
     endTurn() {
         const currentPlayer = this.players[this.currentPlayerIndex];
-        currentPlayer.confirmMove();
+        currentPlayer.confirmMove(this.board);
         
         // Check for stage win
         const winDetails = this.checkStageWin();
@@ -226,7 +226,7 @@ export default class Game {
             if (player.blackwoodHaunted) {
                 player.blackwoodHaunted = false;
                 this.blackwoodPosition = 399; // Banish to Prague
-                msg = `${player.name} played Blackwood Shield. Baron Blackwood has been banished back to Prague!`;
+                msg = `${player.name} deployed a Decoy Hologram. Baron Blackwood has been banished back to Prague!`;
             } else {
                 return { success: false, msg: 'You are not haunted by Baron Blackwood.' };
             }
@@ -239,15 +239,15 @@ export default class Game {
             if (player.blackwoodHaunted) this.blackwoodPosition = player.currentNodeIndex;
             else if (opponent.blackwoodHaunted) this.blackwoodPosition = opponent.currentNodeIndex;
 
-            msg = `${player.name} played Teleport Swap! Swapped positions with ${opponent.name}.`;
+            msg = `${player.name} activated a Wormhole Swap! Swapped positions with ${opponent.name}.`;
         } else if (card.id === 'steal_cash') {
             const stolen = Math.min(10000, opponent.money);
             opponent.money -= stolen;
             player.money += stolen;
-            msg = `${player.name} played Cash Squeeze and stole $${stolen} from ${opponent.name}!`;
+            msg = `${player.name} initiated an IRS Tax Audit and confiscated $${stolen} from ${opponent.name}!`;
         } else if (card.id === 'freeze_opponent') {
             opponent.skipNextTurn = true;
-            msg = `${player.name} played Freeze Opponent. ${opponent.name} will skip their next turn!`;
+            msg = `${player.name} poured Sugar in the Engine of ${opponent.name}! They will skip their next turn.`;
         }
 
         // Remove card from hand
@@ -377,6 +377,21 @@ export default class Game {
             return { type: 'purple' };
         } else if (node.type === 'city' || node.type === 'capital') {
             return { type: 'property', node: node };
+        } else if (node.type === 'blue') {
+            // Scaled cash reward based on unique cities visited
+            const baseRandom = Math.floor(Math.random() * 2001) + 1000; // $1,000 - $3,000
+            const multiplier = 1 + 0.2 * player.visitedCities.length;
+            const reward = Math.floor(baseRandom * multiplier);
+            player.money += reward;
+            return { type: 'blue', amount: reward, visitedCount: player.visitedCities.length };
+        } else if (node.type === 'red') {
+            // Scaled cash penalty based on unique cities visited
+            const baseRandom = Math.floor(Math.random() * 2001) + 1000; // $1,000 - $3,000
+            const multiplier = 1 + 0.2 * player.visitedCities.length;
+            const penalty = Math.floor(baseRandom * multiplier);
+            const actualLoss = Math.min(penalty, player.money);
+            player.money -= actualLoss;
+            return { type: 'red', amount: actualLoss, visitedCount: player.visitedCities.length };
         }
         return null;
     }

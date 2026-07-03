@@ -14,6 +14,7 @@ export default class Player {
         // Movement tracking
         this.movesRemaining = 0;
         this.pathHistory = [this.currentNodeIndex];
+        this.visitedCities = []; // Array of unique city/capital node indices visited
         
         // Status effects
         this.skipNextTurn = false;
@@ -61,9 +62,19 @@ export default class Player {
         return false;
     }
 
-    confirmMove() {
+    confirmMove(board) {
         this.pathHistory = [this.currentNodeIndex];
         this.movesRemaining = 0;
+
+        // Register the city/capital visited
+        if (board) {
+            const node = board.findNodeById(this.currentNodeIndex);
+            if (node && (node.type === 'city' || node.type === 'capital')) {
+                if (!this.visitedCities.includes(this.currentNodeIndex)) {
+                    this.visitedCities.push(this.currentNodeIndex);
+                }
+            }
+        }
     }
 
     /**
