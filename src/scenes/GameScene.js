@@ -38,22 +38,24 @@ export default class GameScene extends Phaser.Scene {
         this.cameras.main.centerOn(pragueX, pragueY);
         this.cameras.main.setZoom(1);
 
-        // --- DRAW CONNECTIONS ---
+        // --- DRAW NODE GLOW & CONNECTIONS ---
         const connectionGraphics = this.add.graphics();
+
         nodes.forEach((node, index) => {
             const px = node.x * 16 + 8;
             const py = node.y * 16 + 8;
 
+            // Draw connections to neighbors (only draw forward links to avoid duplicates)
             node.neighbors.forEach((neighborIndex, dir) => {
                 if (neighborIndex !== null && neighborIndex > index) {
                     const neighbor = board.findNodeById(neighborIndex);
                     if (neighbor) {
                         const isWater = node.flight[dir] === 1;
                         if (isWater) {
-                            connectionGraphics.lineStyle(2.5, 0x3498db, 0.75); // Dashed light blue
+                            connectionGraphics.lineStyle(2.5, 0x00d2d3, 0.8); // Dashed bright cyan
                             this.drawDashedLine(connectionGraphics, px, py, neighbor.x * 16 + 8, neighbor.y * 16 + 8, 8, 6);
                         } else {
-                            connectionGraphics.lineStyle(3, 0x8c6d58, 0.55); // Solid brown road
+                            connectionGraphics.lineStyle(3.5, 0x2d3748, 0.65); // Solid charcoal gray
                             connectionGraphics.beginPath();
                             connectionGraphics.moveTo(px, py);
                             connectionGraphics.lineTo(neighbor.x * 16 + 8, neighbor.y * 16 + 8);

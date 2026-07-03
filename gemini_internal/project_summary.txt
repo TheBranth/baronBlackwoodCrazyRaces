@@ -46,6 +46,7 @@ Current Status:
 - Cloned the original `ondras/drago` reference repository locally at `/ondras_drago` and added it to `.gitignore` to maintain workspace organization.
 - Implemented unique cities visited tracking in `Player.js` and programmatically added Red and Blue space landing actions, applying randomized cash rewards and penalties scaled by `(1 + 0.2 * visitedCities.length)`.
 - Modernized and audited the Feature Cards to fit a high-speed racing theme (e.g. *Nitrous Boost*, *Sugar in the Engine*, *IRS Tax Audit*, *Decoy Hologram*, *Wormhole Swap*).
+- Generated a new, high-contrast, vibrant modern vector map of Europe matching the modern racing theme, and styled connections in `GameScene.js` (solid charcoal gray roads and dashed neon cyan sea-lanes).
 - Extended the integration test suite (`test_gameplay.js`) to verify Red/Blue space landings, cash scaling, and rebranded cards. All tests passed.
 
 Next Steps (Proposed Plan):
